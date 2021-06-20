@@ -2,6 +2,8 @@ package com.hendisantika.springbootwebclientmockwebserver.service;
 
 import com.hendisantika.springbootwebclientmockwebserver.client.ExchangeRateClient;
 import com.hendisantika.springbootwebclientmockwebserver.entity.Order;
+import com.hendisantika.springbootwebclientmockwebserver.entity.Payment;
+import com.hendisantika.springbootwebclientmockwebserver.exception.OrderAlreadyPaid;
 import com.hendisantika.springbootwebclientmockwebserver.repository.OrderRepository;
 import com.hendisantika.springbootwebclientmockwebserver.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +37,16 @@ public class OrderService {
 
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public Payment pay(Long orderId, String creditCardNumber) {
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+
+        if (order.isPaid()) {
+            throw new OrderAlreadyPaid();
+        }
+
+        orderRepository.save(order.markPaid());
+        return paymentRepository.save(new Payment(order, creditCardNumber));
     }
 }
