@@ -2,6 +2,7 @@ package com.hendisantika.springbootunittesting.service;
 
 import com.hendisantika.springbootunittesting.entity.Order;
 import com.hendisantika.springbootunittesting.entity.Payment;
+import com.hendisantika.springbootunittesting.exception.PaymentException;
 import com.hendisantika.springbootunittesting.repository.OrderRepository;
 import com.hendisantika.springbootunittesting.repository.PaymentRepository;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -45,5 +47,13 @@ class OrderServiceTest {
 
         assertThat(payment.getOrder().isPaid()).isTrue();
         assertThat(payment.getCreditCardNumber()).isEqualTo("4532756279624064");
+    }
+
+    @Test
+    void cannotPayAlreadyPaidOrder() {
+        Order order = new Order(1L, true);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(PaymentException.class, () -> orderService.pay(order.getId(), "4556622577268643"));
     }
 }
