@@ -2,6 +2,7 @@ package com.hendisantika.springbootdatajpatest.service;
 
 import com.hendisantika.springbootdatajpatest.entity.Order;
 import com.hendisantika.springbootdatajpatest.entity.Payment;
+import com.hendisantika.springbootdatajpatest.entity.Receipt;
 import com.hendisantika.springbootdatajpatest.exception.OrderAlreadyPaid;
 import com.hendisantika.springbootdatajpatest.repository.OrderRepository;
 import com.hendisantika.springbootdatajpatest.repository.PaymentRepository;
@@ -34,5 +35,10 @@ public class OrderService {
 
         orderRepository.save(order.markPaid());
         return paymentRepository.save(new Payment(order, creditCardNumber));
+    }
+
+    public Receipt getReceipt(Long orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(EntityNotFoundException::new);
+        return new Receipt(payment.getOrder().getDate(), payment.getCreditCardNumber(), payment.getOrder().getAmount());
     }
 }
