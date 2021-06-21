@@ -1,6 +1,7 @@
 package com.hendisantika.springbootwebclientmockwebserver.client;
 
 import com.hendisantika.springbootwebclientmockwebserver.config.ExchangeClientProperties;
+import com.hendisantika.springbootwebclientmockwebserver.exception.ExchangeFailure;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -15,6 +16,7 @@ import javax.money.Monetary;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Created by IntelliJ IDEA.
@@ -74,5 +76,22 @@ class ExchangeRateClientTest {
 
         assertThat(request.getMethod()).isEqualTo("GET");
         assertThat(request.getPath()).isEqualTo("/v6/029db72cee377e4bfa1fa413/pair/EUR/GBP");
+    }
+
+    @Test
+    void exchangeError() {
+        String json = "{\"result\": \"error\"}";
+
+        mockWebServer.enqueue(
+                new MockResponse().setResponseCode(200)
+                        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setBody(json)
+        );
+        CurrencyUnit eur = Monetary.getCurrency("EUR");
+        CurrencyUnit gbp = Monetary.getCurrency("GBP");
+
+        assertThrows(ExchangeFailure.class, () ->
+                exchangeRateClient.getExchangeRate(eur, gbp)
+        );
     }
 }
