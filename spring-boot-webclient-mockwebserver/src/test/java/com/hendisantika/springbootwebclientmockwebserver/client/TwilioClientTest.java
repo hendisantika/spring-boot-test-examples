@@ -12,6 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -71,6 +74,16 @@ class TwilioClientTest {
         assertThat(body).extractingJsonPathStringValue("$.from").isEqualTo("+123456");
         assertThat(body).extractingJsonPathStringValue("$.to").isEqualTo("+234567");
         assertThat(body).extractingJsonPathStringValue("$.body").isEqualTo("test message");
+    }
+
+    private String getJson(String path) {
+        try {
+            InputStream jsonStream = this.getClass().getClassLoader().getResourceAsStream(path);
+            assert jsonStream != null;
+            return new String(jsonStream.readAllBytes());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }
