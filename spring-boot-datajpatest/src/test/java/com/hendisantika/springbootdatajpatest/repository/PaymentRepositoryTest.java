@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 
 import javax.persistence.PersistenceException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,5 +63,13 @@ class PaymentRepositoryTest {
         entityManager.persist(first);
 
         assertThrows(PersistenceException.class, () -> entityManager.persistAndFlush(second));
+    }
+
+    @Test
+    @Sql("/multiple-payments.sql")
+    void findPaymentsAfterDate() {
+        List<Payment> payments = paymentRepository.findAllAfter(LocalDateTime.now().minusDays(1));
+
+        assertThat(payments).extracting("order.id").containsOnly(1L);
     }
 }
