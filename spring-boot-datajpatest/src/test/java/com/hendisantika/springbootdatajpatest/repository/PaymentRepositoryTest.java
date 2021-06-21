@@ -72,4 +72,12 @@ class PaymentRepositoryTest {
 
         assertThat(payments).extracting("order.id").containsOnly(1L);
     }
+
+    @Test
+    @Sql("/multiple-payments.sql")
+    void findPaymentsByCreditCard() {
+        List<Payment> payments = paymentRepository.findByCreditCardNumber("4532756279624064");
+
+        assertThat(payments).extracting("order.id").containsOnly(1L);
+    }
 }
