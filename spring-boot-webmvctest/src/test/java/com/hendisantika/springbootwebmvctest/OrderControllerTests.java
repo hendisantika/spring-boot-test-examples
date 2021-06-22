@@ -1,6 +1,7 @@
 package com.hendisantika.springbootwebmvctest;
 
 import com.hendisantika.springbootwebmvctest.controller.OrderController;
+import com.hendisantika.springbootwebmvctest.dto.Receipt;
 import com.hendisantika.springbootwebmvctest.entity.Order;
 import com.hendisantika.springbootwebmvctest.entity.Payment;
 import com.hendisantika.springbootwebmvctest.exception.OrderAlreadyPaid;
@@ -79,5 +80,15 @@ class OrderControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"creditCardNumber\": \"4532756279624064\"}"))
                 .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    void receiptCanBeFound() throws Exception {
+        Receipt receipt = new Receipt(LocalDateTime.now(), "4532756279624064", 100.0);
+
+        when(orderService.getReceipt(eq(1L))).thenReturn(receipt);
+
+        mockMvc.perform(get("/order/{id}/receipt", 1L))
+                .andExpect(status().isOk());
     }
 }
