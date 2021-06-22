@@ -2,12 +2,15 @@ package com.hendisantika.service;
 
 import com.hendisantika.entity.Order;
 import com.hendisantika.entity.Payment;
+import com.hendisantika.entity.Receipt;
 import com.hendisantika.exception.OrderAlreadyPaid;
 import com.hendisantika.repository.OrderRepository;
 import com.hendisantika.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 
+import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
@@ -48,4 +51,10 @@ public class OrderService {
         return paymentRepository.save(new Payment(order, creditCardNumber));
     }
 
+    public Receipt getReceipt(Long orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(EntityNotFoundException::new);
+        return new Receipt(payment.getOrder().getDate(),
+                payment.getCreditCardNumber(),
+                Money.of(payment.getOrder().getAmount(), Monetary.getCurrency("IDR")));
+    }
 }
