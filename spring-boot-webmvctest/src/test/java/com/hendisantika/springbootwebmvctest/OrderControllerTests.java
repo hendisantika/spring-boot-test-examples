@@ -3,6 +3,7 @@ package com.hendisantika.springbootwebmvctest;
 import com.hendisantika.springbootwebmvctest.controller.OrderController;
 import com.hendisantika.springbootwebmvctest.entity.Order;
 import com.hendisantika.springbootwebmvctest.entity.Payment;
+import com.hendisantika.springbootwebmvctest.exception.OrderAlreadyPaid;
 import com.hendisantika.springbootwebmvctest.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +69,15 @@ class OrderControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cannotPayAlreadyPaidOrder() throws Exception {
+        when(orderService.pay(eq(1L), any())).thenThrow(OrderAlreadyPaid.class);
+
+        mockMvc.perform(post("/order/{id}/payment", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"creditCardNumber\": \"4532756279624064\"}"))
+                .andExpect(status().isMethodNotAllowed());
     }
 }
