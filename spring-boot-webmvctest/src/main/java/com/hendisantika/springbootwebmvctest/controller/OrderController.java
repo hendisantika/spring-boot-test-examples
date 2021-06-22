@@ -2,10 +2,12 @@ package com.hendisantika.springbootwebmvctest.controller;
 
 import com.hendisantika.springbootwebmvctest.dto.PaymentRequest;
 import com.hendisantika.springbootwebmvctest.dto.PaymentResponse;
+import com.hendisantika.springbootwebmvctest.dto.Receipt;
 import com.hendisantika.springbootwebmvctest.entity.Payment;
 import com.hendisantika.springbootwebmvctest.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,5 +41,11 @@ public class OrderController {
         URI location = uriComponentsBuilder.path("/order/{id}/receipt").buildAndExpand(orderId).toUri();
         PaymentResponse response = new PaymentResponse(payment.getOrder().getId(), payment.getCreditCardNumber());
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/order/{id}/receipt")
+    public ResponseEntity<Receipt> getReceipt(@PathVariable("id") Long orderId) {
+        Receipt receipt = orderService.getReceipt(orderId);
+        return ResponseEntity.ok().body(receipt);
     }
 }
