@@ -12,8 +12,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,5 +50,15 @@ class OrderControllerTests {
                 .content("{\"creditCardNumber\": \"4532756279624064\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, "http://localhost/order/1/receipt"));
+    }
+
+    @Test
+    void paymentFailsWhenOrderIsNotFound() throws Exception {
+        when(orderService.pay(eq(1L), any())).thenThrow(EntityNotFoundException.class);
+
+        mockMvc.perform(post("/order/{id}/payment", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"creditCardNumber\": \"4532756279624064\"}"))
+                .andExpect(status().isNotFound());
     }
 }
