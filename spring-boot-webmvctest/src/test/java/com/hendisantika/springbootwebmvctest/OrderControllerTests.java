@@ -1,11 +1,24 @@
 package com.hendisantika.springbootwebmvctest;
 
 import com.hendisantika.springbootwebmvctest.controller.OrderController;
+import com.hendisantika.springbootwebmvctest.entity.Order;
+import com.hendisantika.springbootwebmvctest.entity.Payment;
 import com.hendisantika.springbootwebmvctest.service.OrderService;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,4 +35,18 @@ class OrderControllerTests {
     private OrderService orderService;
     @Autowired
     private MockMvc mockMvc;
+
+    @Test
+    void payOrder() throws Exception {
+        Order order = new Order(1L, LocalDateTime.now(), 100.0, false);
+        Payment payment = new Payment(1000L, order, "4532756279624064");
+
+        when(orderService.pay(eq(1L), eq("4532756279624064"))).thenReturn(payment);
+
+        mockMvc.perform(post("/order/{id}/payment", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"creditCardNumber\": \"4532756279624064\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, "http://localhost/order/1/receipt"));
+    }
 }
