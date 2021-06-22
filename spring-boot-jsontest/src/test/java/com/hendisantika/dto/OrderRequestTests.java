@@ -10,6 +10,8 @@ import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Created by IntelliJ IDEA.
  * Project : spring-boot-test-examples
@@ -30,6 +32,15 @@ public class OrderRequestTests {
         MonetaryAmount expectedAmount = Money.of(50.0, Monetary.getCurrency("USD"));
 
         OrderRequest orderRequest = jacksonTester.parseObject(json);
+
+        assertThat(orderRequest.getAmount()).isEqualTo(expectedAmount);
+    }
+
+    @Test
+    void deserializeFromJson() throws IOException {
+        MonetaryAmount expectedAmount = Money.of(100.0, Monetary.getCurrency("IDR"));
+
+        OrderRequest orderRequest = jacksonTester.readObject("order.json");
 
         assertThat(orderRequest.getAmount()).isEqualTo(expectedAmount);
     }
