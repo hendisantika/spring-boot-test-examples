@@ -20,8 +20,10 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -90,5 +92,20 @@ class OrderControllerTests {
 
         mockMvc.perform(get("/order/{id}/receipt", 1L))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void getReceiptForOrder() throws Exception {
+        Receipt receipt = new Receipt(
+                LocalDateTime.now(),
+                "4532756279624064",
+                100.0);
+
+        when(orderService.getReceipt(eq(1L))).thenReturn(receipt);
+
+        mockMvc.perform(get("/order/{id}/receipt", 1L))
+                .andExpect(jsonPath("$.date").isNotEmpty())
+                .andExpect(jsonPath("$.creditCardNumber").value("4532756279624064"))
+                .andExpect(jsonPath("$.amount").value(100.0));
     }
 }
