@@ -5,6 +5,7 @@ import com.hendisantika.dto.PaymentRequest;
 import com.hendisantika.dto.PaymentResponse;
 import com.hendisantika.entity.Order;
 import com.hendisantika.entity.Payment;
+import com.hendisantika.entity.Receipt;
 import com.hendisantika.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -58,5 +59,11 @@ public class OrderController {
         URI location = uriComponentsBuilder.path("/order/{id}/receipt").buildAndExpand(orderId).toUri();
         PaymentResponse response = new PaymentResponse(payment.getOrder().getId(), payment.getCreditCardNumber());
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/order/{id}/receipt")
+    public ResponseEntity<Receipt> getReceipt(@PathVariable("id") Long orderId) {
+        Receipt receipt = orderService.getReceipt(orderId);
+        return ResponseEntity.ok().body(receipt);
     }
 }
