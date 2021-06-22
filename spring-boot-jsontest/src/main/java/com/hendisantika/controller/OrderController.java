@@ -1,8 +1,17 @@
 package com.hendisantika.controller;
 
+import com.hendisantika.dto.OrderRequest;
+import com.hendisantika.entity.Order;
 import com.hendisantika.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,4 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+
+    @PostMapping("/order")
+    public ResponseEntity<Order> createOrder(
+            @RequestBody @Valid OrderRequest orderRequest,
+            UriComponentsBuilder uriComponentsBuilder) {
+
+        Order order = orderService.createOrder(orderRequest.getAmount());
+        URI location = uriComponentsBuilder.path("/order/{id}").buildAndExpand(order.getId()).toUri();
+        return ResponseEntity.created(location).body(order);
+    }
 }
