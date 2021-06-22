@@ -31,4 +31,14 @@ public class PaymentRequestTests {
         assertThat(violations).isNotEmpty();
     }
 
+    @Test
+    void creditCardNumberMustBeValid() {
+        String creditCardNumberWithInvalidChecksum = "4532756279624063";
+        PaymentRequest request = new PaymentRequest(creditCardNumberWithInvalidChecksum);
+
+        Set<ConstraintViolation<PaymentRequest>> violations = validator.validate(request);
+
+        assertThat(violations).isNotEmpty();
+    }
+
 }
