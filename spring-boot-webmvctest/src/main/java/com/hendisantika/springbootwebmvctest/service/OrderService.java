@@ -1,5 +1,6 @@
 package com.hendisantika.springbootwebmvctest.service;
 
+import com.hendisantika.springbootwebmvctest.dto.Receipt;
 import com.hendisantika.springbootwebmvctest.entity.Order;
 import com.hendisantika.springbootwebmvctest.entity.Payment;
 import com.hendisantika.springbootwebmvctest.exception.OrderAlreadyPaid;
@@ -34,5 +35,10 @@ public class OrderService {
 
         orderRepository.save(order.markPaid());
         return paymentRepository.save(new Payment(order, creditCardNumber));
+    }
+
+    public Receipt getReceipt(Long orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(EntityNotFoundException::new);
+        return new Receipt(payment.getOrder().getDate(), payment.getCreditCardNumber(), payment.getOrder().getAmount());
     }
 }
