@@ -61,4 +61,12 @@ class OrderControllerTests {
                 .content("{\"creditCardNumber\": \"4532756279624064\"}"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void paymentFailsWhenCreditCardNumberNotGiven() throws Exception {
+        mockMvc.perform(post("/order/{id}/payment", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
 }
