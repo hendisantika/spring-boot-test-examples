@@ -3,6 +3,7 @@ package com.hendisantika.springbootintegrationtesting;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,5 +43,11 @@ class ServerIntegrationTests {
     static void setupMockWebServer() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
+    }
+
+    @AfterEach
+    void deleteEntities() {
+        paymentRepository.deleteAll();
+        orderRepository.deleteAll();
     }
 }
