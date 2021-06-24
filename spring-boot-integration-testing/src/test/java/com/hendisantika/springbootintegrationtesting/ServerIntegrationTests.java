@@ -5,8 +5,10 @@ import com.hendisantika.springbootintegrationtesting.repository.PaymentRepositor
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -49,5 +51,14 @@ class ServerIntegrationTests {
     void deleteEntities() {
         paymentRepository.deleteAll();
         orderRepository.deleteAll();
+    }
+
+    @Test
+    void createOrder() {
+        webClient.post().uri("/order")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"amount\": \"EUR100.0\"}")
+                .exchange()
+                .expectStatus().isCreated();
     }
 }
