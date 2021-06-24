@@ -1,5 +1,6 @@
 package com.hendisantika.springbootintegrationtesting;
 
+import com.hendisantika.springbootintegrationtesting.entity.Order;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import okhttp3.mockwebserver.MockWebServer;
@@ -15,6 +16,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * Created by IntelliJ IDEA.
@@ -58,6 +61,18 @@ class ServerIntegrationTests {
         webClient.post().uri("/order")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"amount\": \"EUR100.0\"}")
+                .exchange()
+                .expectStatus().isCreated();
+    }
+
+    @Test
+    void payOrder() {
+        Order order = new Order(LocalDateTime.now(), BigDecimal.valueOf(100.0), false);
+        Long orderId = orderRepository.save(order).getId();
+
+        webClient.post().uri("/order/{id}/payment", orderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"creditCardNumber\": \"4532756279624064\"}")
                 .exchange()
                 .expectStatus().isCreated();
     }
