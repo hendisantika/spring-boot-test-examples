@@ -1,5 +1,6 @@
 package com.hendisantika.springbootintegrationtesting.service;
 
+import com.hendisantika.springbootintegrationtesting.client.ExchangeRateClient;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
