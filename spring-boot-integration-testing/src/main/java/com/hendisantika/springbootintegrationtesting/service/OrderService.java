@@ -2,6 +2,8 @@ package com.hendisantika.springbootintegrationtesting.service;
 
 import com.hendisantika.springbootintegrationtesting.client.ExchangeRateClient;
 import com.hendisantika.springbootintegrationtesting.entity.Order;
+import com.hendisantika.springbootintegrationtesting.entity.Payment;
+import com.hendisantika.springbootintegrationtesting.exception.OrderAlreadyPaid;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,17 @@ public class OrderService {
 
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public Payment pay(Long orderId, String creditCardNumber) {
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+
+        if (order.isPaid()) {
+            throw new OrderAlreadyPaid();
+        }
+
+        orderRepository.save(order.markPaid());
+        return paymentRepository.save(new Payment(order, creditCardNumber));
     }
 
 }
