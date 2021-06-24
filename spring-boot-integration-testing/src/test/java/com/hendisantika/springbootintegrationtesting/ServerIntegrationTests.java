@@ -1,14 +1,17 @@
 package com.hendisantika.springbootintegrationtesting;
 
 import com.hendisantika.springbootintegrationtesting.entity.Order;
+import com.hendisantika.springbootintegrationtesting.entity.Payment;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -75,5 +78,24 @@ class ServerIntegrationTests {
                 .bodyValue("{\"creditCardNumber\": \"4532756279624064\"}")
                 .exchange()
                 .expectStatus().isCreated();
+    }
+
+    @Test
+    void getReceipt() {
+        Order order = new Order(LocalDateTime.now(), BigDecimal.valueOf(100.0), true);
+        Payment payment = new Payment(order, "4532756279624064");
+
+        Long orderId = orderRepository.save(order).getId();
+        paymentRepository.save(payment);
+
+        mockWebServer.enqueue(
+                new MockResponse().setResponseCode(200)
+                        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setBody("{\"conversion_rate\": 0.8412}")
+        );
+
+        webClient.get().uri("/order/{id}/receipt?currency=USD", orderId)
+                .exchange()
+                .expectStatus().isOk();
     }
 }
