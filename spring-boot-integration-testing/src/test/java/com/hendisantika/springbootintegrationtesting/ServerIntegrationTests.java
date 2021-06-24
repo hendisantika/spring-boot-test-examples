@@ -3,12 +3,15 @@ package com.hendisantika.springbootintegrationtesting;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,5 +36,11 @@ class ServerIntegrationTests {
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("exchange-rate-api.base-url", () -> mockWebServer.url("/").url().toString());
+    }
+
+    @BeforeAll
+    static void setupMockWebServer() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
     }
 }
