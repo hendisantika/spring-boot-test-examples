@@ -3,6 +3,7 @@ package com.hendisantika.springbootintegrationtesting.controller;
 import com.hendisantika.springbootintegrationtesting.dto.OrderRequest;
 import com.hendisantika.springbootintegrationtesting.dto.PaymentRequest;
 import com.hendisantika.springbootintegrationtesting.dto.PaymentResponse;
+import com.hendisantika.springbootintegrationtesting.dto.Receipt;
 import com.hendisantika.springbootintegrationtesting.entity.Order;
 import com.hendisantika.springbootintegrationtesting.entity.Payment;
 import com.hendisantika.springbootintegrationtesting.service.OrderService;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.money.CurrencyUnit;
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -58,5 +61,14 @@ public class OrderController {
         URI location = uriComponentsBuilder.path("/order/{id}/receipt").buildAndExpand(orderId).toUri();
         PaymentResponse response = new PaymentResponse(payment.getOrder().getId(), payment.getCreditCardNumber());
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/order/{id}/receipt")
+    public ResponseEntity<Receipt> getReceipt(
+            @PathVariable("id") Long orderId,
+            @RequestParam(value = "currency", required = false, defaultValue = "EUR") CurrencyUnit currency) {
+
+        Receipt receipt = orderService.getReceipt(orderId, currency);
+        return ResponseEntity.ok().body(receipt);
     }
 }
