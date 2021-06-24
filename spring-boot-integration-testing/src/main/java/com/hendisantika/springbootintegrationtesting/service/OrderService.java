@@ -1,14 +1,18 @@
 package com.hendisantika.springbootintegrationtesting.service;
 
 import com.hendisantika.springbootintegrationtesting.client.ExchangeRateClient;
+import com.hendisantika.springbootintegrationtesting.dto.Receipt;
 import com.hendisantika.springbootintegrationtesting.entity.Order;
 import com.hendisantika.springbootintegrationtesting.entity.Payment;
 import com.hendisantika.springbootintegrationtesting.exception.OrderAlreadyPaid;
 import com.hendisantika.springbootintegrationtesting.repository.OrderRepository;
 import com.hendisantika.springbootintegrationtesting.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 
+import javax.money.CurrencyUnit;
+import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
@@ -48,6 +52,17 @@ public class OrderService {
 
         orderRepository.save(order.markPaid());
         return paymentRepository.save(new Payment(order, creditCardNumber));
+    }
+
+    public Receipt getReceipt(Long orderId, CurrencyUnit currency) {
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(EntityNotFoundException::new);
+
+        BigDecimal rate = exchangeRateClient.getExchangeRate(Monetary.getCurrency("EUR"), currency);
+
+        BigDecimal amount = payment.getOrder().getAmount();
+        MonetaryAmount convertedAmount = Money.of(amount.multiply(rate), currency);
+
+        return new Receipt(payment.getOrder().getDate(), payment.getCreditCardNumber(), convertedAmount);
     }
 
 }
