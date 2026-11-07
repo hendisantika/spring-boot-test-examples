@@ -1,48 +1,63 @@
 version: 2
+
 updates:
+  # Maven dependencies for every example module
   - package-ecosystem: maven
-    directory: "/spring-boot-datajpatest"
+    directories:
+      - "/spring-boot-datajpatest"
+      - "/spring-boot-integration-testing"
+      - "/spring-boot-jsontest"
+      - "/spring-boot-unit-testing"
+      - "/spring-boot-webclient-mockwebserver"
+      - "/spring-boot-webmvctest"
     schedule:
       interval: daily
-      time: '05:00'
+      time: "05:00"
       timezone: Asia/Jakarta
     open-pull-requests-limit: 10
-  - package-ecosystem: maven
-    directory: "/spring-boot-integration-testing"
-    schedule:
-      interval: daily
-      time: '05:00'
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 10
-  - package-ecosystem: maven
-    directory: "/spring-boot-jsontest"
-    schedule:
-      interval: daily
-      time: '05:00'
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 10
-  - package-ecosystem: maven
-    directory: "/spring-boot-unit-testing"
-    schedule:
-      interval: daily
-      time: '05:00'
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 10
-  - package-ecosystem: maven
-    directory: "/spring-boot-webclient-mockwebserver<"
-    schedule:
-      interval: daily
-      time: '05:00'
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 10
-  - package-ecosystem: maven
-    directory: "/spring-boot-webmvctest"
-    schedule:
-      interval: daily
-      time: '05:00'
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 10
-  - package-ecosystem: "github-actions"
+    labels:
+      - "dependencies"
+      - "java"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: scope
+    groups:
+      spring-boot:
+        patterns:
+          - "org.springframework.boot*"
+      okhttp:
+        patterns:
+          - "com.squareup.okhttp3*"
+      testing:
+        patterns:
+          - "org.testcontainers*"
+          - "org.junit*"
+          - "org.mockito*"
+          - "org.assertj*"
+      maven-plugins:
+        patterns:
+          - "org.apache.maven.plugins*"
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions used by the CI workflow
+  - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github_actions"
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
