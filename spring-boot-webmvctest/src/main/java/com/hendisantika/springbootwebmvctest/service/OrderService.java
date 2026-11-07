@@ -9,7 +9,7 @@ import com.hendisantika.springbootwebmvctest.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 /**
  * Created by IntelliJ IDEA.
