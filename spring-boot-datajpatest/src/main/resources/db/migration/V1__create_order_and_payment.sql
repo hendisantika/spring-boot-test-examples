@@ -1,0 +1,18 @@
+CREATE SEQUENCE orders_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE payment_seq START WITH 1 INCREMENT BY 50;
+
+CREATE TABLE orders
+(
+    id     BIGINT         NOT NULL PRIMARY KEY,
+    date   TIMESTAMP      NOT NULL,
+    amount DECIMAL(19, 2) NOT NULL,
+    paid   BOOLEAN        NOT NULL
+);
+
+CREATE TABLE payment
+(
+    id                 BIGINT      NOT NULL PRIMARY KEY,
+    order_id           BIGINT      NOT NULL UNIQUE,
+    credit_card_number VARCHAR(16) NOT NULL,
+    CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders (id)
+);
