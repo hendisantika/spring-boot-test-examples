@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
