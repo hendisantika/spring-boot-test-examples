@@ -1,10 +1,5 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# Build & test every Spring Boot example module with Maven on JDK 25.
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
 
 name: Java CI with Maven
 
@@ -13,38 +8,61 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-
+    name: Build ${{ matrix.module }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # required to submit the dependency graph snapshot
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - spring-boot-datajpatest
+          - spring-boot-integration-testing
+          - spring-boot-jsontest
+          - spring-boot-unit-testing
+          - spring-boot-webclient-mockwebserver
+          - spring-boot-webmvctest
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up JDK 21
-      uses: actions/setup-java@v6
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven for spring-boot-datajpatest
-      run: mvn -B package --file ./spring-boot-datajpatest/pom.xml
+      - name: Checkout
+        uses: actions/checkout@v7
 
-    - name: Build with Maven for spring-boot-integration-testing
-      run: mvn -B package --file ./spring-boot-integration-testing/pom.xml
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+          cache-dependency-path: ${{ matrix.module }}/pom.xml
 
-    - name: Build with Maven for spring-boot-jsontest
-      run: mvn -B package --file ./spring-boot-jsontest/pom.xml
+      - name: Build & test ${{ matrix.module }}
+        run: mvn -B -ntp verify --file ./${{ matrix.module }}/pom.xml
 
-    - name: Build with Maven for spring-boot-unit-testing
-      run: mvn -B package --file ./spring-boot-unit-testing/pom.xml
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ matrix.module }}
+          path: ${{ matrix.module }}/target/surefire-reports/
+          retention-days: 7
 
-    - name: Build with Maven for spring-boot-webclient-mockwebserver<
-      run: mvn -B package --file ./spring-boot-webclient-mockwebserver</pom.xml
-
-    - name: Build with Maven for spring-boot-webmvctest
-      run: mvn -B package --file ./spring-boot-webmvctest/pom.xml
-
-    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@a64327a7329c9939cf675e458452febe1894a70c
+      # Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts
+      - name: Update dependency graph
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: advanced-security/maven-dependency-submission-action@a64327a7329c9939cf675e458452febe1894a70c # v6.0.1
+        with:
+          directory: ${{ matrix.module }}
+          ignore-maven-wrapper: true
+          correlator: ${{ github.job }}-${{ matrix.module }}
