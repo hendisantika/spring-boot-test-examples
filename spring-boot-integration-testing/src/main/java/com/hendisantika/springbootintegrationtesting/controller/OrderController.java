@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.money.CurrencyUnit;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.net.URI;
 
 /**
